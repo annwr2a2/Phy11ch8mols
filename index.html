@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاكاة كمية المادة والمول المتقدمة - الأستاذ أنور البلوشي</title>
+    <style>
+        /* تصميم الواجهة - تباين عالي وخطوط عريضة لرؤية واضحة في الصف */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #111111;
+            margin: 0;
+            padding: 10px; /* تقليل الحواف للهواتف */
+            font-weight: bold;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 15px; /* متجاوب */
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            border: 3px solid #1a73e8;
+            box-sizing: border-box;
+        }
+        h1, h2, h3, p, span, td, th, button, label {
+            font-weight: 900 !important; /* ضمان الخط العريض جداً لجميع النصوص */
+        }
+        h1 {
+            color: #1a73e8;
+            text-align: center;
+            border-bottom: 4px solid #1a73e8;
+            padding-bottom: 15px;
+            margin-top: 0;
+            font-size: 24px; /* حجم أنسب للهواتف ويزداد في الشاشات الأكبر */
+        }
+        .audio-control {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .btn-audio {
+            background-color: #202124;
+            color: #ffffff;
+            border: 2px solid #000;
+            padding: 12px 25px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.3s;
+            max-width: 100%;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+        .btn-audio:hover {
+            background-color: #3c4043;
+        }
+        /* قسم المحاكاة والمرئيات */
+        .simulation-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+            background: #f1f3f4;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #bdc1c6;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .simulation-container h3 {
+            font-size: 18px;
+            text-align: center;
+        }
+        .canvas-wrapper {
+            width: 100%;
+            max-width: 800px;
+            position: relative;
+        }
+        canvas {
+            background: #000000;
+            border-radius: 6px;
+            border: 3px solid #202124;
+            width: 100%; /* جعل الكانفاس مرن وعرضه 100% من الحاوية */
+            height: auto;
+            display: block;
+        }
+        .controls-panel {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column; /* عمودي افتراضياً للهواتف */
+            gap: 15px;
+            align-items: center;
+            width: 100%;
+            justify-content: center;
+            text-align: center;
+        }
+        .slider-group {
+            display: flex;
+            flex-direction: column; /* عمودي للهواتف لسهولة اللمس */
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+        input[type="range"] {
+            width: 100%;
+            max-width: 300px;
+            cursor: pointer;
+            height: 10px; /* زيادة السمك لسهولة السحب باللمس */
+        }
+        /* بطاقات المعطيات والجدول */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* عمود واحد للهواتف */
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .card {
+            background: #e8f0fe;
+            border: 2px solid #1a73e8;
+            padding: 15px;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        .card h3 {
+            color: #1967d2;
+            margin-top: 0;
+            font-size: 18px;
+        }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto; /* السماح بالتمرير الأفقي للجدول إذا صغرت الشاشة جداً */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 16px;
+        }
+        th, td {
+            border: 2px solid #1a73e8;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #1a73e8;
+            color: white;
+        }
+        td {
+            background-color: #ffffff;
+        }
+        /* قسم التحدي والتقييم */
+        .quiz-section {
+            background: #fef7e0;
+            border: 3px solid #f4b400;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 35px;
+            box-sizing: border-box;
+        }
+        .quiz-section h2 {
+            color: #b06000;
+            margin-top: 0;
+            font-size: 20px;
+        }
+        .question-text {
+            font-size: 18px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 6px;
+            border: 2px solid #f4b400;
+        }
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr; /* عمود واحد للهواتف لعدم تداخل النصوص العريضة */
+            gap: 12px;
+        }
+        .option-btn {
+            background: #ffffff;
+            border: 2px solid #f4b400;
+            padding: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 6px;
+            text-align: center;
+            transition: all 0.2s;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        .option-btn:hover:not(:disabled) {
+            background: #fff8e1;
+            border-color: #b06000;
+        }
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .feedback {
+            margin-top: 20px;
+            font-size: 18px;
+            text-align: center;
+            min-height: 30px;
+        }
+        .correct-feedback { color: #137333; }
+        .wrong-feedback { color: #c5221f; }
+        
+        /* صندوق خطوات الحل التفصيلي */
+        .solution-box {
+            margin-top: 20px;
+            background-color: #fce8e6;
+            border: 2px dashed #c5221f;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+            text-align: right;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+        .solution-box h4 {
+            color: #c5221f;
+            margin-top: 0;
+            font-size: 16px;
+        }
+
+        .action-container {
+            text-align: center;
+            margin-top: 25px;
+        }
+        .btn-refresh {
+            background-color: #137333;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 300px;
+        }
+        .btn-refresh:hover { background-color: #0f5b29; }
+        
+        /* حقوق العمل السفلى */
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            border-top: 2px solid #bdc1c6;
+            font-size: 14px;
+            color: #3c4043;
+            background-color: #f1f3f4;
+            padding: 15px;
+            border-radius: 6px;
+            line-height: 1.6;
+        }
+
+        /* 📱 شاشات التابلت والأجهزة المتوسطة (أكبر من 600 بكسل) */
+        @media (min-width: 600px) {
+            body { padding: 20px; }
+            .container { padding: 30px; }
+            h1 { font-size: 28px; }
+            .controls-panel { flex-direction: row; justify-content: space-between; }
+            .slider-group { flex-direction: row; width: auto; }
+            .cards-grid { grid-template-columns: 1fr 1fr; }
+            .options-container { grid-template-columns: 1fr 1fr; }
+            .btn-audio { font-size: 18px; }
+            .card h3 { font-size: 20px; }
+            table { font-size: 18px; }
+            .quiz-section h2 { font-size: 22px; }
+            .question-text { font-size: 20px; }
+            .option-btn { font-size: 18px; }
+            .feedback { font-size: 22px; }
+            .solution-box { font-size: 16px; }
+            .solution-box h4 { font-size: 18px; }
+            .btn-refresh { width: auto; font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>الدرس (1-8): كمية المادة والمول والكتلة المولية</h1>
+
+    <div class="audio-control">
+        <button class="btn-audio" onclick="speakLesson()">
+            🔊 اضغط هنا للاستماع لشرح الأستاذ أنور البلوشي للدرس
+        </button>
+    </div>
+
+    <div class="simulation-container">
+        <h3>🎬 محاكاة حركة الجزيئات وتأثير زيادة عدد المولات (n)</h3>
+        <div class="canvas-wrapper">
+            <canvas id="gasCanvas" width="800" height="350"></canvas>
+        </div>
+        <div class="controls-panel">
+            <div class="slider-group">
+                <label for="moleSlider">كمية المادة (n):</label>
+                <input type="range" id="moleSlider" min="1" max="5" step="1" value="1" oninput="updateSimulation(this.value)">
+                <span id="moleValue">1 مول</span>
+            </div>
+            <div>
+                <strong>الغاز المستخدم: غاز ثاني أكسيد الكربون (CO₂)</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="cards-grid">
+        <div class="card">
+            <h3>🔬 الثوابت والقوانين الفيزيائية بالدرس</h3>
+            <p>• عدد أفوجادرو (N_A) = 6.022 × 10²³ جزيء/مول</p>
+            <p>• الكتلة المولية لـ CO₂ = 44.0 جرام/مول</p>
+            <p>• قانون عدد المولات بدلالة الجسيمات: n = N / N_A</p>
+            <p>• قانون عدد المولات بدلالة الكتلة: n = m / M</p>
+        </div>
+        <div class="card">
+            <h3>📊 الحسابات الديناميكية بناءً على المحاكاة</h3>
+            <div class="table-responsive">
+                <table id="calcTable">
+                    <thead>
+                        <tr>
+                            <th>المتغير الفيزيائي</th>
+                            <th>العلاقة والقيمة المحسوبة بدقة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>عدد المولات (n)</td>
+                            <td id="td-moles">1 مول</td>
+                        </tr>
+                        <tr>
+                            <td>الكتلة الكلية بالجرام (m)</td>
+                            <td id="td-mass">44.0 جرام</td>
+                        </tr>
+                        <tr>
+                            <td>العدد الإجمالي للجزيئات (N)</td>
+                            <td id="td-particles">6.022 × 10²³ جزيء</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="quiz-section">
+        <h2>🎯 قسم التحدي الشامل والتنويع الصفي (قفل الإجابات والحل بالخطوات)</h2>
+        <div class="question-text" id="questionBox">جاري تحميل السؤال العشوائي المتقدم...</div>
+        <div class="options-container" id="optionsBox"></div>
+        <div class="feedback" id="feedbackBox"></div>
+        
+        <div class="solution-box" id="solutionBox"></div>
+    </div>
+
+    <div class="action-container">
+        <button class="btn-refresh" onclick="generateNewQuestion()">🔄 توليد أسئلة عشوائية جديدة</button>
+    </div>
+
+    <footer>
+        إعداد وتطوير المحتوى التفاعلي: <strong>الأستاذ أنور البلوشي</strong> | رقم الهاتف: <strong>92818606</strong> | المنهج العماني للفيزياء
+    </footer>
+</div>
+
+<script>
+    // إعدادات محاكاة الـ Canvas المتجاوبة
+    const canvas = document.getElementById('gasCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    const baseParticlesPerMole = 30;
+
+    class Particle {
+        constructor() {
+            // توليد إحداثيات تعتمد على الأبعاد الفعلية الحالية للكانفاس
+            this.x = Math.random() * (canvas.width - 20) + 10;
+            this.y = Math.random() * (canvas.height - 20) + 10;
+            this.vx = (Math.random() - 0.5) * 4;
+            this.vy = (Math.random() - 0.5) * 4;
+            this.radius = 6;
+        }
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            
+            // الارتداد من الحواف بدقة
+            if(this.x - this.radius < 0) { this.x = this.radius; this.vx *= -1; }
+            if(this.x + this.radius > canvas.width) { this.x = canvas.width - this.radius; this.vx *= -1; }
+            if(this.y - this.radius < 0) { this.y = this.radius; this.vy *= -1; }
+            if(this.y + this.radius > canvas.height) { this.y = canvas.height - this.radius; this.vy *= -1; }
+        }
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = '#ff3333';
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.stroke();
+            ctx.closePath();
+        }
+    }
+
+    function initSimulation(moles) {
+        particles = [];
+        let totalCount = moles * baseParticlesPerMole;
+        for(let i=0; i<totalCount; i++) {
+            particles.push(new Particle());
+        }
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+            p.update();
+            p.draw();
+        });
+        requestAnimationFrame(animate);
+    }
+
+    function updateSimulation(val) {
+        document.getElementById('moleSlider').value = val;
+        document.getElementById('moleValue').innerText = val + " مول";
+        initSimulation(val);
+        
+        let mass = (val * 44.0).toFixed(1);
+        let countText = (val * 6.022).toFixed(3) + " × 10²³";
+        
+        document.getElementById('td-moles').innerText = val + " مول";
+        document.getElementById('td-mass').innerText = mass + " جرام";
+        document.getElementById('td-particles').innerText = countText + " جزيء";
+    }
+
+    // تهيئة التشغيل الأول للمحاكاة
+    initSimulation(1);
+    animate();
+
+    function speakLesson() {
+        window.speechSynthesis.cancel(); 
+        let text = "مرحباً بكم يا شباب في صف الفيزياء. ... معكم الأستاذ أنور البلوشي. ... درسُنا اليوم هو كميةُ المادةِ والمول. ... تذكروا دائماً أن المول الواحد من أي مادة، يحتوي على نفسِ العددِ من الجسيماتِ، وهو ما يُعرفُ بعددِ أفوجادرو، ويساوي ستة فاصلة صفر اثنين وعشرين، مضروباً في عشرةٍ أس ثلاثةٍ وعشرين. ... لاحظوا في شاشةِ المحاكاةِ أمامكم، كيف تزدادُ كتلةُ الغازِ وعددُ جزيئاته، كلما أضفنا كمياتِ مولاتٍ أكبر. ... والآن حان دورُكم لتجربةِ التحدي في الأسفل.";
+        let utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ar-OM';
+        utterance.rate = 0.85;     
+        utterance.pitch = 0.9;     
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function playAudioFeedback(isCorrect) {
+        window.speechSynthesis.cancel(); 
+        if (isCorrect) {
+            let ut = new SpeechSynthesisUtterance("برافو إجابة صحيحة");
+            ut.lang = 'ar-EG';
+            window.speechSynthesis.speak(ut);
+            
+            let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            for(let i=0; i<15; i++) {
+                setTimeout(() => {
+                    let osc = audioCtx.createOscillator();
+                    let gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(200 + Math.random()*400, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.1);
+                }, i * 40);
+            }
+        } else {
+            let ut = new SpeechSynthesisUtterance("حاول من جديد يا بني، ركز في خطوات الحل الموضحة أمامك");
+            ut.lang = 'ar-EG';
+            window.speechSynthesis.speak(ut);
+        }
+    }
+
+    const compounds = [
+        { name: "الماء (H₂O)", formula: "H₂O", elements: "H = 1.0, O = 16.0", calcM: () => (2 * 1) + 16, desc: "(2 × 1.0) + 16.0" },
+        { name: "ثاني أكسيد الكربون (CO₂)", formula: "CO₂", elements: "C = 12.0, O = 16.0", calcM: () => 12 + (2 * 16), desc: "12.0 + (2 × 16.0)" },
+        { name: "الميثان (CH₄)", formula: "CH₄", elements: "C = 12.0, H = 1.0", calcM: () => 12 + (4 * 1), desc: "12.0 + (4 × 1.0)" },
+        { name: "الأمونيا (NH₃)", formula: "NH₃", elements: "N = 14.0, H = 1.0", calcM: () => 14 + (3 * 1), desc: "14.0 + (3 × 1.0)" }
+    ];
+
+    let currentCorrectAnswer = "";
+    let currentSolutionSteps = "";
+
+    function generateNewQuestion() {
+        document.getElementById('feedbackBox').innerText = "";
+        document.getElementById('feedbackBox').className = "feedback";
+        document.getElementById('solutionBox').style.display = "none";
+        
+        const comp = compounds[Math.floor(Math.random() * compounds.length)];
+        const M = comp.calcM(); 
+        const randomMoles = Math.floor(Math.random() * 4) + 2; 
+        const totalMass = randomMoles * M;
+        const NA = 6.022;
+        const totalParticles = (randomMoles * NA).toFixed(3);
+
+        const levels = ['find_moles', 'find_mass', 'find_particles'];
+        const chosenLevel = levels[Math.floor(Math.random() * levels.length)];
+
+        let questionText = "";
+        let options = [];
+
+        if (chosenLevel === 'find_moles') {
+            questionText = `سؤال صفي: عينة من غاز ${comp.name} كتلته الإجمالية تساوي (${totalMass} جرام). إذا علمت أن الكتل الذرية المكونة له هي: (${comp.elements}). احسب كمية المادة بوحدة المول (mol).`;
+            currentCorrectAnswer = randomMoles + " مول";
+            options = [
+                randomMoles + " مول",
+                (randomMoles + 1) + " مول",
+                (randomMoles - 1) + " مول",
+                (totalMass / 10).toFixed(1) + " مول"
+            ];
+
+            currentSolutionSteps = `
+                <h4>💡 خطوات الحل بالتفصيل:</h4>
+                <strong>الخطوة 1: حساب الكتلة المولية (M) للمركب (${comp.formula}):</strong><br>
+                M = ${comp.desc} = <strong>${M} جرام/مول</strong>.<br><br>
+                <strong>الخطوة 2: تطبيق قانون عدد المولات (n):</strong><br>
+                n = الكتلة بالجرام (m) ÷ الكتلة المولية (M)<br>
+                n = ${totalMass} ÷ ${M} = <strong>${randomMoles} مول</strong>.
+            `;
+        } 
+        else if (chosenLevel === 'find_mass') {
+            questionText = `سؤال صفي: احسب الكتلة الكلية بالجرام (g) لعينة من مركب ${comp.name} إذا كانت كمية المادة فيه تساوي (${randomMoles} مول)، علماً بأن الكتل الذرية هي: (${comp.elements}).`;
+            currentCorrectAnswer = totalMass + " جرام";
+            options = [
+                totalMass + " جرام",
+                (totalMass + M) + " جرام",
+                (totalMass - M) + " جرام",
+                (M) + " جرام"
+            ];
+
+            currentSolutionSteps = `
+                <h4>💡 خطوات الحل بالتفصيل:</h4>
+                <strong>الخطوة 1: حساب الكتلة المولية (M) للمركب (${comp.formula}):</strong><br>
+                M = ${comp.desc} = <strong>${M} جرام/مول</strong>.<br><br>
+                <strong>الخطوة 2: حساب الكتلة الكلية (m):</strong><br>
+                m = عدد المولات (n) × الكتلة المولية (M)<br>
+                m = ${randomMoles} × ${M} = <strong>${totalMass} جرام</strong>.
+            `;
+        }
+        else if (chosenLevel === 'find_particles') {
+            questionText = `سؤال صفي: عينة من غاز ${comp.name} كتلتها تساوي (${totalMass} جرام). احسب العدد الإجمالي للجزيئات (N) داخل العينة، علماً بأن الكتل الذرية هي (${comp.elements}) وعدد أفوجادرو هو (6.022 × 10²³).`;
+            currentCorrectAnswer = totalParticles + " × 10²³ جزيء";
+            options = [
+                totalParticles + " × 10²³ جزيء",
+                (randomMoles * 1.5).toFixed(3) + " × 10²³ جزيء",
+                (NA).toFixed(3) + " × 10²³ جزيء",
+                "1.51 × 10²⁴ جزيء"
+            ];
+
+            currentSolutionSteps = `
+                <h4>💡 خطوات الحل بالتفصيل:</h4>
+                <strong>الخطوة 1: حساب الكتلة المولية (M) للمركب (${comp.formula}):</strong><br>
+                M = ${comp.desc} = <strong>${M} جرام/مول</strong>.<br><br>
+                <strong>الخطوة 2: حساب عدد المولات (n):</strong><br>
+                n = ${totalMass} ÷ ${M} = <strong>${randomMoles} مول</strong>.<br><br>
+                <strong>الخطوة 3: حساب عدد الجزيئات الإجمالي (N):</strong><br>
+                N = عدد المولات (n) × عدد أفوجادرو (N_A)<br>
+                N = ${randomMoles} × 6.022 × 10²³ = <strong>${totalParticles} × 10²³ جزيء</strong>.
+            `;
+        }
+
+        options = [...new Set(options)].sort(() => Math.random() - 0.5);
+
+        document.getElementById('questionBox').innerHTML = questionText;
+        const optionsBox = document.getElementById('optionsBox');
+        optionsBox.innerHTML = "";
+        options.forEach(opt => {
+            let btn = document.createElement('button');
+            btn.className = "option-btn";
+            btn.innerText = opt;
+            btn.onclick = function() { checkAnswer(opt); };
+            optionsBox.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selectedOpt) {
+        const feedbackBox = document.getElementById('feedbackBox');
+        const solutionBox = document.getElementById('solutionBox');
+        
+        const buttons = document.querySelectorAll('.option-btn');
+        buttons.forEach(btn => btn.disabled = true);
+        
+        if (selectedOpt === currentCorrectAnswer) {
+            feedbackBox.innerText = "🎯 ممتـاز جداً! إجابة صحيحـة وثقة فيزيائية عالية.";
+            feedbackBox.className = "feedback correct-feedback";
+            solutionBox.style.display = "none";
+            playAudioFeedback(true);
+        } else {
+            feedbackBox.innerText = "❌ محاولة خاطئة. تم قفل السؤال، وتعلّم من خطوات الحل بالأسفل:";
+            feedbackBox.className = "feedback wrong-feedback";
+            
+            solutionBox.innerHTML = currentSolutionSteps;
+            solutionBox.style.display = "block";
+            playAudioFeedback(false);
+        }
+    }
+
+    generateNewQuestion();
+</script>
+
+</body>
+</html>
